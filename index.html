@@ -3,360 +3,315 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tiendita - Gral. Zaragoza</title>
+<title>Tiendita</title>
     <style>
-        /* --- ESTILOS PASTEL (CSS) --- */
+        /* Importamos una tipografía moderna y amigable */
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800&display=swap');
+
+        /* --- ESTILOS MODERNOS (SOFT UI) --- */
         * {
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Nunito', sans-serif;
         }
         body {
             margin: 0;
             padding: 0;
-            background-color: #fdfbfb;
+            background-color: #f4f7f6; /* Gris súper tenue y elegante */
             height: 100vh;
             display: flex;
             overflow: hidden; 
         }
 
-        /* Pantalla de la Caja (POS) */
+        /* Pantalla de la Caja */
         #pantalla-caja {
             display: flex; 
             width: 100%;
             height: 100vh;
         }
         
-        /* Sección Izquierda: Pestañas y Catálogo */
+        /* Sección Izquierda */
         .seccion-izquierda {
             flex: 1; 
             min-width: 0; 
             display: flex;
             flex-direction: column;
-            background-color: #fdfbfb;
+            background-color: transparent;
         }
 
-        /* Diseño de Pestañas */
+        /* Diseño de Pestañas Tipo App */
         .contenedor-pestanas {
             display: flex;
-            background-color: #e8f4f8;
-            padding: 15px 20px 5px 20px;
-            gap: 10px;
+            background-color: #fff;
+            padding: 20px 20px 0 20px;
             overflow-x: auto;
             flex-shrink: 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            z-index: 10;
         }
         
-        .contenedor-pestanas::-webkit-scrollbar { height: 8px; }
-        .contenedor-pestanas::-webkit-scrollbar-track { background: #e8f4f8; }
-        .contenedor-pestanas::-webkit-scrollbar-thumb {
-            background-color: #a2d2ff;
-            border-radius: 10px;
-        }
+        .contenedor-pestanas::-webkit-scrollbar { height: 6px; }
+        .contenedor-pestanas::-webkit-scrollbar-track { background: #f1f1f1; }
+        .contenedor-pestanas::-webkit-scrollbar-thumb { background-color: #d1d8e0; border-radius: 10px; }
 
         .pestana {
-            background-color: #d8e2dc;
+            background-color: transparent;
             border: none;
-            padding: 10px 20px;
+            padding: 12px 24px;
             border-radius: 15px 15px 0 0;
             font-size: 1.1rem;
             cursor: pointer;
-            font-weight: bold;
-            color: #555;
+            font-weight: 800;
+            color: #a4b0be;
             white-space: nowrap; 
-            transition: background-color 0.2s, transform 0.2s;
+            transition: all 0.3s ease;
+            border-bottom: 4px solid transparent;
+        }
+        .pestana:hover {
+            color: #747d8c;
         }
         .pestana.activa {
-            background-color: #caffbf; 
-            color: #222;
-            transform: translateY(2px);
+            color: #2f3542;
+            border-bottom: 4px solid #7bed9f; /* Acento verde agua moderno */
         }
 
-        /* Catálogo */
+        /* Catálogo con CSS Grid Inteligente */
         .catalogo {
-            padding: 20px;
-            display: flex;
-            flex-wrap: wrap;
+            padding: 25px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); /* Fluido y perfecto */
             gap: 20px;
             align-content: flex-start;
             overflow-y: auto;
             flex-grow: 1;
-            background-color: #caffbf; 
-            border-radius: 0 0 20px 0;
         }
+        
         .producto-card {
             background-color: #fff; 
             padding: 20px;
-            border-radius: 15px;
+            border-radius: 20px;
             cursor: pointer;
-            width: calc(25% - 15px); /* Mantén esto igual */
-            min-height: 220px;       /* Agregamos una altura mínima fija */
+            min-height: 220px;
             text-align: center;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-            transition: transform 0.1s;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.04); /* Sombra suave */
+            border: 2px solid transparent;
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Animación elástica */
             display: flex;
             flex-direction: column;
-            justify-content: space-between; /* Esto distribuye el espacio interno */
+            justify-content: space-between; 
         }
-        .producto-card:active {
-            transform: scale(0.95); 
-            background-color: #f0f0f0;
+        .producto-card:hover {
+            transform: translateY(-5px); 
+            box-shadow: 0 15px 25px rgba(0,0,0,0.08);
+            border-color: #f1f2f6;
         }
-        .producto-card h1 {
-            margin: 0;
-            font-size: 2.5rem;
-        }
-        .producto-card p {
-            margin: 10px 0 0 0;
-            font-size: 1rem;
-            font-weight: bold;
-        }
+        .producto-card:active { transform: scale(0.95); }
+        .producto-card h1 { margin: 0; font-size: 3rem; }
+        .producto-card p { margin: 10px 0 0 0; font-size: 1.05rem; font-weight: 800; color: #2f3542; line-height: 1.2; }
 
-        /* Ticket lateral */
+        /* Ticket Estilo Realista / Panel Lateral */
         .ticket {
-            width: 380px; 
+            width: 400px; 
             flex-shrink: 0; 
-            background-color: #ffd6a5; 
+            background-color: #fff; 
             padding: 30px;
-            border-left: 4px dashed #fff;
             display: flex;
             flex-direction: column;
+            box-shadow: -5px 0 30px rgba(0,0,0,0.05); /* Sombra hacia la izquierda */
+            z-index: 20;
         }
         
         .input-tarjeta {
             width: 100%;
-            padding: 12px;
-            font-size: 1.2rem;
+            padding: 15px;
+            font-size: 1.1rem;
             text-align: center;
-            border-radius: 10px;
-            border: 2px solid #fff;
+            border-radius: 12px;
+            border: 2px solid #dfe4ea;
             outline: none;
-            margin-bottom: 15px;
-            background-color: #fff;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+            background-color: #f8f9fa;
+            color: #2f3542;
+            font-weight: 600;
+            transition: border-color 0.3s;
         }
-        .input-tarjeta:focus { border-color: #a2d2ff; }
+        .input-tarjeta:focus { border-color: #7bed9f; background-color: #fff; }
 
         .lista-carrito {
-            background: rgba(255, 255, 255, 0.6);
-            border-radius: 10px;
+            background: #f8f9fa;
+            border-radius: 15px;
             padding: 15px;
             flex-grow: 1;
             overflow-y: auto;
+            border: 1px solid #f1f2f6;
         }
         .item-carrito {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px 5px;
-            border-bottom: 2px dashed #fff;
+            padding: 12px 10px;
+            border-bottom: 1px dashed #ced6e0;
             font-size: 1.1rem;
+            color: #2f3542;
+            font-weight: 600;
             transition: background-color 0.2s;
             border-radius: 8px;
         }
-        .item-carrito:hover {
-            background-color: rgba(255, 255, 255, 0.9);
-        }
-        .item-izq {
-            display: flex;
-            align-items: center;
-        }
+        .item-carrito:last-child { border-bottom: none; }
+        .item-carrito:hover { background-color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+        
+        .item-izq { display: flex; align-items: center; }
         .btn-eliminar {
-            background-color: #ffadad;
-            color: #d00000;
+            background-color: #ff6b81;
+            color: #fff;
             border: none;
-            border-radius: 5px;
-            width: 24px;
-            height: 24px;
-            font-size: 0.9rem;
+            border-radius: 6px;
+            width: 26px;
+            height: 26px;
+            font-size: 0.8rem;
             cursor: pointer;
             display: flex;
             justify-content: center;
             align-items: center;
             opacity: 0;
-            transition: opacity 0.2s, transform 0.1s;
-            margin-right: 10px;
+            transition: all 0.2s;
+            margin-right: 12px;
             flex-shrink: 0;
             font-weight: bold;
         }
+        .item-carrito:hover .btn-eliminar { opacity: 1; transform: scale(1.1); }
         .btn-eliminar:active { transform: scale(0.9); }
-        .item-carrito:hover .btn-eliminar { opacity: 1; }
         
-        /* Botones de acción */
+        /* Botones de acción vibrantes */
         .btn-cobrar {
-            background-color: #fdffb6; 
+            background-color: #7bed9f; 
+            color: #2f3542;
             border: none;
-            padding: 20px;
+            padding: 22px;
             font-size: 1.5rem;
-            border-radius: 15px;
-            font-weight: bold;
+            border-radius: 16px;
+            font-weight: 800;
             cursor: pointer;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
+            box-shadow: 0 8px 15px rgba(123, 237, 159, 0.3);
+            transition: all 0.3s;
         }
-        .grupo-botones {
-            display: flex;
-            gap: 10px;
-        }
+        .btn-cobrar:hover { transform: translateY(-2px); box-shadow: 0 12px 20px rgba(123, 237, 159, 0.4); }
+        .btn-cobrar:active { transform: translateY(2px); }
+
+        .grupo-botones { display: flex; gap: 12px; }
         .btn-cancelar {
-            background-color: #ffadad; 
+            background-color: #ff6b81; 
+            color: #fff;
             border: none;
             padding: 15px;
             font-size: 1rem;
-            border-radius: 15px;
+            border-radius: 12px;
             cursor: pointer;
             flex: 1;
-            font-weight: bold;
+            font-weight: 800;
+            transition: opacity 0.2s;
         }
         .btn-imprimir {
-            background-color: #cddafd; 
+            background-color: #70a1ff; 
+            color: #fff;
             border: none;
             padding: 15px;
             font-size: 1rem;
-            border-radius: 15px;
+            border-radius: 12px;
             cursor: pointer;
             flex: 1;
-            font-weight: bold;
+            font-weight: 800;
+            transition: opacity 0.2s;
         }
+        .btn-cancelar:hover, .btn-imprimir:hover { opacity: 0.9; }
 
-        /* --- ESTILOS PARA VENTANA MODAL DE PAGO --- */
+        /* Estilos de la Modal (Simplificados y pulidos) */
         .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5); 
-            display: none; 
-            justify-content: center;
-            align-items: center;
-            z-index: 1000; 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(47, 53, 66, 0.8); backdrop-filter: blur(5px);
+            display: none; justify-content: center; align-items: center; z-index: 1000; 
         }
-
         .modal-content {
-            background-color: #fff;
-            padding: 40px;
-            border-radius: 20px;
-            width: 90%;
-            max-width: 500px;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
-            text-align: center;
-            position: relative;
+            background-color: #fff; padding: 40px; border-radius: 24px;
+            width: 90%; max-width: 450px; text-align: center; position: relative;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.2);
         }
-
         .btn-cerrar-modal {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: #888;
+            position: absolute; top: 20px; right: 20px; background: #f1f2f6; border: none;
+            width: 35px; height: 35px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; color: #57606f; font-weight: bold;
         }
-        
-        .modal-header h2 { margin-top: 0; color: #333; }
-        .modal-body { margin-top: 30px; }
-        .opciones-pago { display: flex; flex-direction: column; gap: 20px; }
-        
+        .btn-cerrar-modal:hover { background: #dfe4ea; }
         .btn-metodo-pago {
-            width: 100%;
-            padding: 30px;
-            font-size: 2rem;
-            font-weight: bold;
-            border-radius: 15px;
-            border: none;
-            cursor: pointer;
-            transition: transform 0.2s;
-            color: #333;
+            width: 100%; padding: 25px; font-size: 1.8rem; font-weight: 800;
+            border-radius: 16px; border: none; cursor: pointer; color: #2f3542; margin-bottom: 15px;
+            background-color: #f1f2f6; transition: all 0.2s;
         }
-        .btn-metodo-pago:active { transform: scale(0.97); }
+        .btn-metodo-pago:hover { background-color: #eccc68; transform: translateY(-3px); }
         
-        .btn-efectivo { background-color: #a2d2ff; } 
-        .btn-tarjeta { background-color: #caffbf; } 
-
         #simulador-tarjeta { display: none; }
-        
         .pinpad-display {
-            width: 100%;
-            padding: 15px;
-            font-size: 2rem;
-            text-align: center;
-            border-radius: 10px;
-            border: 2px solid #ccc;
-            background-color: #f9f9f9;
-            margin-bottom: 20px;
-            color: #333;
+            width: 100%; padding: 15px; font-size: 2.5rem; text-align: center; letter-spacing: 5px;
+            border-radius: 12px; border: 2px solid #dfe4ea; background-color: #f8f9fa; margin-bottom: 20px; color: #2f3542; font-weight: 800;
         }
-        
-        .pinpad-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-        }
-        
+        .pinpad-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
         .btn-pinpad {
-            padding: 20px;
-            font-size: 1.8rem;
-            font-weight: bold;
-            border-radius: 10px;
-            border: none;
-            cursor: pointer;
-            background-color: #f0f0f0;
-            color: #333;
-            transition: background-color 0.2s;
+            padding: 20px; font-size: 1.8rem; font-weight: 800; border-radius: 12px;
+            border: none; cursor: pointer; background-color: #f1f2f6; color: #2f3542; transition: all 0.1s;
         }
-        .btn-pinpad:active { background-color: #ddd; }
-        .btn-pinpad.special { background-color: #ffadad; color: #fff; } 
-        .btn-pinpad.confirm { background-color: #fdffb6; color: #333; } 
+        .btn-pinpad:active { background-color: #dfe4ea; transform: scale(0.95); }
+        .btn-pinpad.special { background-color: #ff6b81; color: #fff; } 
+        .btn-pinpad.confirm { background-color: #7bed9f; color: #2f3542; } 
 
         #pago-status { display: none; }
-        
-        .status-screen-content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 20px;
-        }
-        
+        .status-screen-content { display: flex; flex-direction: column; align-items: center; gap: 15px; }
         .status-icon { font-size: 5rem; }
-        .status-text { font-size: 1.5rem; font-weight: bold; color: #333; }
-        .summary-details { text-align: left; width: 80%; margin: 0 auto; color: #555; }
-
+        .summary-details { text-align: left; width: 100%; background: #f8f9fa; padding: 20px; border-radius: 15px; color: #2f3542; }
+        
         @keyframes spinner { to { transform: rotate(360deg); } }
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid rgba(0,0,0,0.1);
-            border-top-color: #a2d2ff;
-            border-radius: 50%;
-            animation: spinner 0.8s linear infinite;
-        }
-
-        @keyframes success-pulse {
-            0% { transform: scale(1); opacity: 0; }
-            50% { transform: scale(1.1); opacity: 1; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-        .success-animation { animation: success-pulse 0.5s ease-out; color: #77dd77; } 
-
-        @keyframes error-shake {
-            0%, 100% { transform: translateX(0); }
-            10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
-            20%, 40%, 60%, 80% { transform: translateX(10px); }
-        }
-        .error-animation { animation: error-shake 0.5s ease-in-out; color: #ffadad; } 
+        .spinner { width: 50px; height: 50px; border: 5px solid #f1f2f6; border-top-color: #70a1ff; border-radius: 50%; animation: spinner 0.8s linear infinite; }
         
         .btn-reintentar-modal, .btn-cerrar-final-modal {
-            margin-top: 30px;
-            padding: 15px 30px;
-            font-size: 1.1rem;
-            border-radius: 10px;
-            border: none;
-            cursor: pointer;
-            font-weight: bold;
-            color: #333;
+            margin-top: 20px; padding: 15px 30px; font-size: 1.1rem; border-radius: 12px;
+            border: none; cursor: pointer; font-weight: 800; color: #2f3542; width: 100%;
         }
-        .btn-reintentar-modal { background-color: #ffd6a5; } 
-        .btn-cerrar-final-modal { background-color: #d8e2dc; } 
+        .btn-reintentar-modal { background-color: #eccc68; } 
+        .btn-cerrar-final-modal { background-color: #f1f2f6; } 
+        .btn-cerrar-final-modal:hover { background-color: #dfe4ea; }
+		
+		
+		/* --- RESPONSIVE DESIGN (MOBILE-FRIENDLY) --- */
+        @media (max-width: 850px) {
+            body {
+                overflow: auto; /* Liberamos el scroll bloqueado */
+            }
+            #pantalla-caja {
+                flex-direction: column; /* Apilamos el catálogo arriba y el ticket abajo */
+                height: auto;
+            }
+            .seccion-izquierda {
+                height: 55vh; /* El catálogo tomará poco más de la mitad superior de la pantalla */
+            }
+            .ticket {
+                width: 100%; /* El ticket ahora abarca de lado a lado */
+                padding: 20px;
+                box-shadow: 0 -10px 20px rgba(0,0,0,0.05); /* Invertimos la sombra hacia arriba */
+            }
+            .catalogo {
+                padding: 15px;
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); /* Tarjetas más delgadas */
+            }
+            .producto-card {
+                min-height: 180px; 
+                padding: 15px;
+            }
+            .producto-card h1 {
+                font-size: 2.2rem; /* Emojis ligeramente más chicos */
+            }
+            .btn-metodo-pago {
+                font-size: 1.4rem;
+                padding: 20px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -507,25 +462,25 @@
             // 1. Frutas y Verduras
             { id: 1, nombre: '1kg Manzanas', precioOriginal: 55, precio: 35, emoji: '🍎', categoria: 'Frutas y Verduras' },
             { id: 2, nombre: '1kg Plátano', precio: 28, emoji: '🍌', categoria: 'Frutas y Verduras' },
-            { id: 3, nombre: '1kg Aguacate Hass', precio: 85, emoji: '🥑', categoria: 'Frutas y Verduras' },
-            { id: 4, nombre: '1kg Tomate Huaje', precio: 38, emoji: '🍅', categoria: 'Frutas y Verduras' },
-            { id: 5, nombre: '1kg Limón Colima', precio: 45, emoji: '🍋', categoria: 'Frutas y Verduras' },
+            { id: 3, nombre: '1kg Aguacate', precio: 85, emoji: '🥑', categoria: 'Frutas y Verduras' },
+            { id: 4, nombre: '1kg Tomate', precio: 38, emoji: '🍅', categoria: 'Frutas y Verduras' },
+            { id: 5, nombre: '1kg Limón', precio: 45, emoji: '🍋', categoria: 'Frutas y Verduras' },
             { id: 6, nombre: '1kg Zanahoria', precio: 20, emoji: '🥕', categoria: 'Frutas y Verduras' },
-            { id: 7, nombre: '1kg Papa Blanca', precioOriginal: 40, precio: 25, emoji: '🥔', categoria: 'Frutas y Verduras' },
+            { id: 7, nombre: '1kg Papa', precioOriginal: 40, precio: 25, emoji: '🥔', categoria: 'Frutas y Verduras' },
 
             // 2. Higiene
-            { id: 8, nombre: 'Jabón de Tocador', precioOriginal: 20, precio: 12, emoji: '🧼', categoria: 'Higiene' },
+            { id: 8, nombre: 'Jabón', precioOriginal: 20, precio: 12, emoji: '🧼', categoria: 'Higiene' },
             { id: 9, nombre: 'Pasta Dental', precioOriginal: 40, precio: 25, emoji: '🪥', categoria: 'Higiene' },
             { id: 10, nombre: 'Papel Higiénico (4 rollos)', precio: 35, emoji: '🧻', categoria: 'Higiene' },
             { id: 11, nombre: 'Shampoo (750ml)', precioOriginal: 65, precio: 45, emoji: '🧴', categoria: 'Higiene' },
             { id: 12, nombre: 'Gel Antibacterial', precio: 30, emoji: '🧴', categoria: 'Higiene' },
 
             // 3. Papelería
-            { id: 13, nombre: 'Cuaderno Profesional', precio: 35, emoji: '📓', categoria: 'Papelería' },
+            { id: 13, nombre: 'Cuaderno', precio: 35, emoji: '📓', categoria: 'Papelería' },
             { id: 14, nombre: 'Lápiz No. 2', precio: 8, emoji: '✏️', categoria: 'Papelería' },
             { id: 15, nombre: 'Marcadores Super Tips (20pz)', precio: 180, emoji: '🖍️', categoria: 'Papelería' },
-            { id: 16, nombre: 'Borrador Blanco', precio: 12, emoji: '🧽', categoria: 'Papelería' },
-            { id: 17, nombre: 'Pegamento en Barra', precio: 28, emoji: '🧴', categoria: 'Papelería' },
+            { id: 16, nombre: 'Borrador', precio: 12, emoji: '🧽', categoria: 'Papelería' },
+            { id: 17, nombre: 'Pegamento', precio: 28, emoji: '🧴', categoria: 'Papelería' },
 
             // 4. Abarrotes
             { id: 18, nombre: 'Frijol Pinto (1kg)', precioOriginal: 48, precio: 38, emoji: '🫘', categoria: 'Abarrotes' },
@@ -607,7 +562,7 @@
                 let precioHTML = '';
                 if (prod.precioOriginal) {
                     precioHTML = `
-                        <div style="background: #ffadad; color: #fff; padding: 3px 8px; border-radius: 10px; font-size: 0.8rem; font-weight: bold; width: fit-content; margin: 0 auto 5px auto;">¡OFERTA!</div>
+                        <div style="background: #ffadad; color: #fff; padding: 3px 8px; border-radius: 10px; font-size: 0.8rem; font-weight: bold; width: fit-content; margin: 0 auto 5px auto;">DESCUENTO</div>
                         <span style="color:#888; font-size:1rem; text-decoration: line-through; margin-right: 8px;">$${prod.precioOriginal}</span>
                         <span style="color:#d00000; font-size:1.4rem; font-weight: bold;">$${prod.precio}</span>
                     `;
