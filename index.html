@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tiendita - Gral. Zaragoza</title>
+    <style>
+        /* --- ESTILOS PASTEL (CSS) --- */
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #fdfbfb;
+            height: 100vh;
+            display: flex;
+            overflow: hidden; 
+        }
+
+        /* Pantalla de la Caja (POS) */
+        #pantalla-caja {
+            display: flex; 
+            width: 100%;
+            height: 100vh;
+        }
+        
+        /* Sección Izquierda: Pestañas y Catálogo */
+        .seccion-izquierda {
+            flex: 1; 
+            min-width: 0; 
+            display: flex;
+            flex-direction: column;
+            background-color: #fdfbfb;
+        }
+
+        /* Diseño de Pestañas */
+        .contenedor-pestanas {
+            display: flex;
+            background-color: #e8f4f8;
+            padding: 15px 20px 5px 20px;
+            gap: 10px;
+            overflow-x: auto;
+            flex-shrink: 0;
+        }
+        
+        .contenedor-pestanas::-webkit-scrollbar { height: 8px; }
+        .contenedor-pestanas::-webkit-scrollbar-track { background: #e8f4f8; }
+        .contenedor-pestanas::-webkit-scrollbar-thumb {
+            background-color: #a2d2ff;
+            border-radius: 10px;
+        }
+
+        .pestana {
+            background-color: #d8e2dc;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 15px 15px 0 0;
+            font-size: 1.1rem;
+            cursor: pointer;
+            font-weight: bold;
+            color: #555;
+            white-space: nowrap; 
+            transition: background-color 0.2s, transform 0.2s;
+        }
+        .pestana.activa {
+            background-color: #caffbf; 
+            color: #222;
+            transform: translateY(2px);
+        }
+
+        /* Catálogo */
+        .catalogo {
+            padding: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            align-content: flex-start;
+            overflow-y: auto;
+            flex-grow: 1;
+            background-color: #caffbf; 
+            border-radius: 0 0 20px 0;
+        }
+        .producto-card {
+            background-color: #fff; 
+            padding: 20px;
+            border-radius: 15px;
+            cursor: pointer;
+            width: calc(25% - 15px); /* Mantén esto igual */
+            min-height: 220px;       /* Agregamos una altura mínima fija */
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+            transition: transform 0.1s;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between; /* Esto distribuye el espacio interno */
+        }
+        .producto-card:active {
+            transform: scale(0.95); 
+            background-color: #f0f0f0;
+        }
+        .producto-card h1 {
+            margin: 0;
+            font-size: 2.5rem;
+        }
+        .producto-card p {
+            margin: 10px 0 0 0;
+            font-size: 1rem;
+            font-weight: bold;
+        }
+
+        /* Ticket lateral */
+        .ticket {
+            width: 380px; 
+            flex-shrink: 0; 
+            background-color: #ffd6a5; 
+            padding: 30px;
+            border-left: 4px dashed #fff;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .input-tarjeta {
+            width: 100%;
+            padding: 12px;
+            font-size: 1.2rem;
+            text-align: center;
+            border-radius: 10px;
+            border: 2px solid #fff;
+            outline: none;
+            margin-bottom: 15px;
+            background-color: #fff;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .input-tarjeta:focus { border-color: #a2d2ff; }
+
+        .lista-carrito {
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 10px;
+            padding: 15px;
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+        .item-carrito {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 5px;
+            border-bottom: 2px dashed #fff;
+            font-size: 1.1rem;
+            transition: background-color 0.2s;
+            border-radius: 8px;
+        }
+        .item-carrito:hover {
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+        .item-izq {
+            display: flex;
+            align-items: center;
+        }
+        .btn-eliminar {
+            background-color: #ffadad;
+            color: #d00000;
+            border: none;
+            border-radius: 5px;
+            width: 24px;
+            height: 24px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.2s, transform 0.1s;
+            margin-right: 10px;
+            flex-shrink: 0;
+            font-weight: bold;
+        }
+        .btn-eliminar:active { transform: scale(0.9); }
+        .item-carrito:hover .btn-eliminar { opacity: 1; }
+        
+        /* Botones de acción */
+        .btn-cobrar {
+            background-color: #fdffb6; 
+            border: none;
+            padding: 20px;
+            font-size: 1.5rem;
+            border-radius: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+        .grupo-botones {
+            display: flex;
+            gap: 10px;
+        }
+        .btn-cancelar {
+            background-color: #ffadad; 
+            border: none;
+            padding: 15px;
+            font-size: 1rem;
+            border-radius: 15px;
+            cursor: pointer;
+            flex: 1;
+            font-weight: bold;
+        }
+        .btn-imprimir {
+            background-color: #cddafd; 
+            border: none;
+            padding: 15px;
+            font-size: 1rem;
+            border-radius: 15px;
+            cursor: pointer;
+            flex: 1;
+            font-weight: bold;
+        }
+
+        /* --- ESTILOS PARA VENTANA MODAL DE PAGO --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); 
+            display: none; 
+            justify-content: center;
+            align-items: center;
+            z-index: 1000; 
+        }
+
+        .modal-content {
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+            text-align: center;
+            position: relative;
+        }
+
+        .btn-cerrar-modal {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #888;
+        }
+        
+        .modal-header h2 { margin-top: 0; color: #333; }
+        .modal-body { margin-top: 30px; }
+        .opciones-pago { display: flex; flex-direction: column; gap: 20px; }
+        
+        .btn-metodo-pago {
+            width: 100%;
+            padding: 30px;
+            font-size: 2rem;
+            font-weight: bold;
+            border-radius: 15px;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.2s;
+            color: #333;
+        }
+        .btn-metodo-pago:active { transform: scale(0.97); }
+        
+        .btn-efectivo { background-color: #a2d2ff; } 
+        .btn-tarjeta { background-color: #caffbf; } 
+
+        #simulador-tarjeta { display: none; }
+        
+        .pinpad-display {
+            width: 100%;
+            padding: 15px;
+            font-size: 2rem;
+            text-align: center;
+            border-radius: 10px;
+            border: 2px solid #ccc;
+            background-color: #f9f9f9;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        
+        .pinpad-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+        
+        .btn-pinpad {
+            padding: 20px;
+            font-size: 1.8rem;
+            font-weight: bold;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            background-color: #f0f0f0;
+            color: #333;
+            transition: background-color 0.2s;
+        }
+        .btn-pinpad:active { background-color: #ddd; }
+        .btn-pinpad.special { background-color: #ffadad; color: #fff; } 
+        .btn-pinpad.confirm { background-color: #fdffb6; color: #333; } 
+
+        #pago-status { display: none; }
+        
+        .status-screen-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+        }
+        
+        .status-icon { font-size: 5rem; }
+        .status-text { font-size: 1.5rem; font-weight: bold; color: #333; }
+        .summary-details { text-align: left; width: 80%; margin: 0 auto; color: #555; }
+
+        @keyframes spinner { to { transform: rotate(360deg); } }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(0,0,0,0.1);
+            border-top-color: #a2d2ff;
+            border-radius: 50%;
+            animation: spinner 0.8s linear infinite;
+        }
+
+        @keyframes success-pulse {
+            0% { transform: scale(1); opacity: 0; }
+            50% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .success-animation { animation: success-pulse 0.5s ease-out; color: #77dd77; } 
+
+        @keyframes error-shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
+            20%, 40%, 60%, 80% { transform: translateX(10px); }
+        }
+        .error-animation { animation: error-shake 0.5s ease-in-out; color: #ffadad; } 
+        
+        .btn-reintentar-modal, .btn-cerrar-final-modal {
+            margin-top: 30px;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            color: #333;
+        }
+        .btn-reintentar-modal { background-color: #ffd6a5; } 
+        .btn-cerrar-final-modal { background-color: #d8e2dc; } 
+    </style>
+</head>
+<body>
+
+    <div id="pantalla-caja">
+        <div class="seccion-izquierda">
+            <div class="contenedor-pestanas" id="contenedor-pestanas"></div>
+            <div class="catalogo" id="contenedor-productos"></div>
+        </div>
+
+        <div class="ticket">
+            <form id="form-tarjeta">
+                <input type="text" id="input-codigo" class="input-tarjeta" placeholder="¼ Escanea tarjeta (Ej. 0001)" autocomplete="off" autofocus>
+            </form>
+
+            <h2 style="margin:0; font-size: 1.5rem;">Tarjeta: <span id="lbl-tarjeta">----</span></h2>
+            <p style="font-size: 1.2rem; margin-top: 5px;">Saldo: <b>$<span id="lbl-saldo">0.00</span></b></p>
+            
+            <div class="lista-carrito" id="contenedor-carrito"></div>
+
+            <div style="border-top: 2px dashed #fff; padding-top: 15px; margin-bottom: 10px;">
+                <p style="font-size: 1.2rem; margin: 5px 0; display: flex; justify-content: space-between; color: #555;">
+                    <span>Subtotal:</span> <b>$<span id="lbl-subtotal">0.00</span></b>
+                </p>
+                <p style="font-size: 1.2rem; margin: 5px 0; color: #d00000; display: flex; justify-content: space-between;">
+                    <span>Descuento:</span> <b>-$<span id="lbl-descuento">0.00</span></b>
+                </p>
+                <h1 style="margin: 10px 0 10px 0; font-size: 1rem; display: flex; justify-content: space-between; color: #222;">
+                    <span>Total a pagar:</span> <span>$<span id="lbl-total">0.00</span></span>
+                </h1>
+            </div>
+            
+            <button class="btn-cobrar" onclick="iniciarProcesoCobro()">✨ Cobrar</button>
+            <div class="grupo-botones">
+                <button class="btn-cancelar" onclick="cancelarCompra()">❌ Cancelar</button>
+                <button class="btn-imprimir" onclick="imprimirUltimoTicket()">🖨️ Imprimir</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-pago-overlay" class="modal-overlay">
+        <div class="modal-content">
+            <button class="btn-cerrar-modal" id="btn-cerrar-x" onclick="cerrarModal()">×</button>
+            <div class="modal-header">
+                <h2 id="modal-title">Cobrar</h2>
+            </div>
+            
+            <div class="modal-body">
+                <div id="seleccion-metodo-pago">
+                    <div class="opciones-pago">
+                        <button class="btn-metodo-pago btn-efectivo">💵 Efectivo</button>
+                        <button class="btn-metodo-pago btn-tarjeta" onclick="seleccionarMetodoPago('tarjeta')">💳 Tarjeta</button>
+                    </div>
+                </div>
+
+                <div id="simulador-tarjeta">
+                    <h3>💳 Ingresa CVV</h3>
+                    <input type="text" id="pinpad-display" class="pinpad-display" maxlength="3" readonly placeholder="***">
+                    <p style="color: #666; font-size: 0.9rem; margin-top: -10px; margin-bottom: 20px;">(Pista para tarjeta 0001: 582)</p>
+                    <div class="pinpad-grid">
+                        <button class="btn-pinpad" onclick="tecladoCVVClick('1')">1</button>
+                        <button class="btn-pinpad" onclick="tecladoCVVClick('2')">2</button>
+                        <button class="btn-pinpad" onclick="tecladoCVVClick('3')">3</button>
+                        <button class="btn-pinpad" onclick="tecladoCVVClick('4')">4</button>
+                        <button class="btn-pinpad" onclick="tecladoCVVClick('5')">5</button>
+                        <button class="btn-pinpad" onclick="tecladoCVVClick('6')">6</button>
+                        <button class="btn-pinpad" onclick="tecladoCVVClick('7')">7</button>
+                        <button class="btn-pinpad" onclick="tecladoCVVClick('8')">8</button>
+                        <button class="btn-pinpad" onclick="tecladoCVVClick('9')">9</button>
+                        <button class="btn-pinpad special" onclick="tecladoCVVClick('back')">⌫</button>
+                        <button class="btn-pinpad" onclick="tecladoCVVClick('0')">0</button>
+                        <button class="btn-pinpad confirm" onclick="verificarCVV()">✅</button>
+                    </div>
+                </div>
+
+                <div id="pago-status">
+                    </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. SINTETIZADOR DE SONIDO (BEEP) ---
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        const audioCtx = new AudioContext();
+
+        function emitirBeep() {
+            if (audioCtx.state === 'suspended') { audioCtx.resume(); }
+            const oscilador = audioCtx.createOscillator();
+            const controlVolumen = audioCtx.createGain();
+
+            oscilador.type = 'square';
+            oscilador.frequency.setValueAtTime(800, audioCtx.currentTime); 
+
+            controlVolumen.gain.setValueAtTime(0.05, audioCtx.currentTime); 
+            controlVolumen.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.1);
+
+            oscilador.connect(controlVolumen);
+            controlVolumen.connect(audioCtx.destination);
+            
+            oscilador.start();
+            oscilador.stop(audioCtx.currentTime + 0.1); 
+        }
+
+        // --- 2. BASE DE DATOS LOCAL ---
+        const cvvLookup = {
+            '0001': '582', 
+			'0002': '802', 
+			'0003': '925', 
+			'0004': '148',
+            '0005': '271', 
+			'0006': '394', 
+			'0007': '517', 
+			'0008': '640',
+            '0009': '763', 
+			'0010': '886', 
+			'0011': '109', 
+			'0012': '232',
+            '0013': '355', 
+			'0014': '478', 
+			'0015': '601', 
+			'0016': '724',
+            '0017': '847', 
+			'0018': '070', 
+			'0019': '193', 
+			'0020': '316',
+            '0021': '439', 
+			'0022': '562', 
+			'0023': '685', 
+			'0024': '808',
+            '0025': '031', 
+			'0026': '154', 
+			'0027': '277', 
+			'0028': '400',
+            '0029': '523', 
+			'0030': '646', 
+			'0031': '769'
+        };
+
+        let clientes = [];
+        for(let i = 1; i <= 31; i++) {
+            let nip = i.toString().padStart(4, '0');
+            let cvv = cvvLookup[nip];
+            clientes.push({ id: nip, saldo: 1000, cvv: cvv });
+        }
+
+        const inventario = [
+            // 1. Frutas y Verduras
+            { id: 1, nombre: '1kg Manzanas', precioOriginal: 55, precio: 35, emoji: '🍎', categoria: 'Frutas y Verduras' },
+            { id: 2, nombre: '1kg Plátano', precio: 28, emoji: '🍌', categoria: 'Frutas y Verduras' },
+            { id: 3, nombre: '1kg Aguacate Hass', precio: 85, emoji: '🥑', categoria: 'Frutas y Verduras' },
+            { id: 4, nombre: '1kg Tomate Huaje', precio: 38, emoji: '🍅', categoria: 'Frutas y Verduras' },
+            { id: 5, nombre: '1kg Limón Colima', precio: 45, emoji: '🍋', categoria: 'Frutas y Verduras' },
+            { id: 6, nombre: '1kg Zanahoria', precio: 20, emoji: '🥕', categoria: 'Frutas y Verduras' },
+            { id: 7, nombre: '1kg Papa Blanca', precioOriginal: 40, precio: 25, emoji: '🥔', categoria: 'Frutas y Verduras' },
+
+            // 2. Higiene
+            { id: 8, nombre: 'Jabón de Tocador', precioOriginal: 20, precio: 12, emoji: '🧼', categoria: 'Higiene' },
+            { id: 9, nombre: 'Pasta Dental', precioOriginal: 40, precio: 25, emoji: '🪥', categoria: 'Higiene' },
+            { id: 10, nombre: 'Papel Higiénico (4 rollos)', precio: 35, emoji: '🧻', categoria: 'Higiene' },
+            { id: 11, nombre: 'Shampoo (750ml)', precioOriginal: 65, precio: 45, emoji: '🧴', categoria: 'Higiene' },
+            { id: 12, nombre: 'Gel Antibacterial', precio: 30, emoji: '🧴', categoria: 'Higiene' },
+
+            // 3. Papelería
+            { id: 13, nombre: 'Cuaderno Profesional', precio: 35, emoji: '📓', categoria: 'Papelería' },
+            { id: 14, nombre: 'Lápiz No. 2', precio: 8, emoji: '✏️', categoria: 'Papelería' },
+            { id: 15, nombre: 'Marcadores Super Tips (20pz)', precio: 180, emoji: '🖍️', categoria: 'Papelería' },
+            { id: 16, nombre: 'Borrador Blanco', precio: 12, emoji: '🧽', categoria: 'Papelería' },
+            { id: 17, nombre: 'Pegamento en Barra', precio: 28, emoji: '🧴', categoria: 'Papelería' },
+
+            // 4. Abarrotes
+            { id: 18, nombre: 'Frijol Pinto (1kg)', precioOriginal: 48, precio: 38, emoji: '🫘', categoria: 'Abarrotes' },
+            { id: 19, nombre: 'Arroz (1kg)', precio: 40, emoji: '🍚', categoria: 'Abarrotes' },
+            { id: 20, nombre: 'Aceite Vegetal (1L)', precioOriginal: 48, precio: 35, emoji: '🛢️', categoria: 'Abarrotes' },
+            { id: 21, nombre: 'Atún en Agua (Lata)', precioOriginal: 22, precio: 15, emoji: '🥫', categoria: 'Abarrotes' },
+            { id: 22, nombre: 'Huevos (Tapa de 30)', precio: 95, emoji: '🥚', categoria: 'Abarrotes' },
+            { id: 23, nombre: 'Mayonesa (390g)', precioOriginal: 55, precio: 40, emoji: '🍯', categoria: 'Abarrotes' },
+            { id: 24, nombre: 'Leche Entera (1L)', precio: 28, emoji: '🥛', categoria: 'Abarrotes' },
+            { id: 25, nombre: 'Pan de Caja Grande', precio: 50, emoji: '🍞', categoria: 'Abarrotes' },
+            { id: 26, nombre: 'Tortillas de Maíz (1kg)', precio: 28, emoji: '🌮', categoria: 'Abarrotes' },
+
+            // 5. Carnes
+            { id: 27, nombre: 'Carne Molida de Res (1kg)', precio: 180, emoji: '🥩', categoria: 'Carnes' },
+            { id: 28, nombre: 'Milanesa de Res (500g)', precioOriginal: 110, precio: 85, emoji: '🥩', categoria: 'Carnes' },
+            { id: 29, nombre: 'Chuleta de Cerdo (500g)', precio: 70, emoji: '🍖', categoria: 'Carnes' },
+            { id: 30, nombre: 'Costilla para asar (1kg)', precio: 190, emoji: '🥩', categoria: 'Carnes' },
+
+            // 6. Cocina
+            { id: 31, nombre: 'Sincronizada de deshebrada', precio: 50, emoji: '🌮', categoria: 'Cocina' },
+            { id: 32, nombre: 'Salchichas FUD', precio: 50, emoji: '🌭', categoria: 'Cocina' },
+            { id: 33, nombre: 'Jamón de Pavo FUD (250g)', precio: 52, emoji: '🥓', categoria: 'Cocina' },
+            { id: 34, nombre: 'Queso Oaxaca (500g)', precio: 95, emoji: '🧀', categoria: 'Cocina' },
+            { id: 35, nombre: 'Queso Panela (400g)', precio: 75, emoji: '🧀', categoria: 'Cocina' },
+            { id: 36, nombre: 'Pollo Entero Rostizado', precio: 140, emoji: '🍗', categoria: 'Cocina' },
+            { id: 37, nombre: 'Pizza Congelada', precio: 100, emoji: '🍕', categoria: 'Cocina' },
+            { id: 38, nombre: 'Hamburguesas (Caja 6 pz)', precio: 95, emoji: '🍔', categoria: 'Cocina' },
+
+            // 7. Cereales
+            { id: 39, nombre: 'Zucaritas', precioOriginal: 85, precio: 65, emoji: '🐅', categoria: 'Cereales' },
+            { id: 40, nombre: 'Choco Krispis', precio: 85, emoji: '🐘', categoria: 'Cereales' },
+            { id: 41, nombre: 'Froot Loops', precio: 70, emoji: '🦜', categoria: 'Cereales' },
+            { id: 42, nombre: 'Corn Flakes Clásico', precio: 60, emoji: '🐓', categoria: 'Cereales' },
+            { id: 43, nombre: 'Galletas Marías', precio: 20, emoji: '🍪', categoria: 'Cereales' },
+            { id: 44, nombre: 'Galletas Emperador', precioOriginal: 25, precio: 15, emoji: '🍪', categoria: 'Cereales' },
+            { id: 45, nombre: 'Galletas Chokis', precio: 26, emoji: '🍪', categoria: 'Cereales' }
+        ];
+
+        const categorias = [...new Set(inventario.map(item => item.categoria))];
+        let categoriaActiva = categorias[0]; 
+
+        let clienteActual = null;
+        let carrito = [];
+        let total = 0;
+        let subtotal = 0; // NUEVO
+        let descuento = 0; // NUEVO
+        let ultimoTicket = null;
+
+        const contenedorPestanas = document.getElementById('contenedor-pestanas');
+        const contenedorProductos = document.getElementById('contenedor-productos');
+
+        let entradaCVV = ''; 
+
+        // --- 3. FUNCIONES DE INTERFAZ ---
+        function renderPestanas() {
+            contenedorPestanas.innerHTML = '';
+            categorias.forEach(cat => {
+                const btn = document.createElement('button');
+                btn.className = `pestana ${cat === categoriaActiva ? 'activa' : ''}`;
+                btn.innerText = cat;
+                btn.onclick = () => {
+                    categoriaActiva = cat;
+                    renderPestanas(); 
+                    renderProductos(); 
+                };
+                contenedorPestanas.appendChild(btn);
+            });
+        }
+
+        function renderProductos() {
+            contenedorProductos.innerHTML = '';
+            const productosFiltrados = inventario.filter(prod => prod.categoria === categoriaActiva);
+            
+            productosFiltrados.forEach(prod => {
+                const div = document.createElement('div');
+                div.className = 'producto-card';
+                
+                // --- LÓGICA VISUAL PARA EL DESCUENTO ---
+                let precioHTML = '';
+                if (prod.precioOriginal) {
+                    precioHTML = `
+                        <div style="background: #ffadad; color: #fff; padding: 3px 8px; border-radius: 10px; font-size: 0.8rem; font-weight: bold; width: fit-content; margin: 0 auto 5px auto;">¡OFERTA!</div>
+                        <span style="color:#888; font-size:1rem; text-decoration: line-through; margin-right: 8px;">$${prod.precioOriginal}</span>
+                        <span style="color:#d00000; font-size:1.4rem; font-weight: bold;">$${prod.precio}</span>
+                    `;
+                } else {
+                    precioHTML = `<p style="color:#222; font-size:1.3rem; margin: 0;">$${prod.precio}</p>`;
+                }
+
+                div.innerHTML = `
+                    <h1>${prod.emoji}</h1>
+                    <p style="margin: 10px 0; flex-grow: 1;">${prod.nombre}</p>
+                    <div>${precioHTML}</div>
+                `;
+                
+                div.onclick = () => agregarAlCarrito(prod);
+                contenedorProductos.appendChild(div);
+            });
+        }
+		
+        renderPestanas();
+        renderProductos();
+
+        // --- 4. LÓGICA DE NEGOCIO ---
+        document.getElementById('form-tarjeta').addEventListener('submit', function(e) {
+            e.preventDefault(); 
+            const codigo = document.getElementById('input-codigo').value;
+            const clienteEncontrado = clientes.find(c => c.id === codigo);
+            
+            if(clienteEncontrado) {
+                clienteActual = clienteEncontrado;
+                
+                document.getElementById('lbl-tarjeta').innerText = clienteActual.id;
+                document.getElementById('lbl-saldo').innerText = clienteActual.saldo;
+                
+                document.getElementById('input-codigo').value = ''; 
+                document.getElementById('input-codigo').blur();
+            } else {
+                alert('Código no válido. Usa del 0001 al 0031.');
+                document.getElementById('input-codigo').value = '';
+            }
+        });
+
+        function agregarAlCarrito(producto) {
+            emitirBeep(); 
+            const itemExistente = carrito.find(item => item.id === producto.id);
+            
+            if (itemExistente) {
+                itemExistente.cantidad += 1;
+            } else {
+                carrito.push({ ...producto, cantidad: 1 });
+            }
+            actualizarTicket();
+        }
+
+        function actualizarTicket() {
+            const contenedorCarrito = document.getElementById('contenedor-carrito');
+            contenedorCarrito.innerHTML = ''; 
+            total = 0;
+            subtotal = 0; 
+
+            carrito.forEach(item => {
+                const precioBase = item.precioOriginal ? item.precioOriginal : item.precio;
+                
+                const subtotalItem = precioBase * item.cantidad;
+                const totalItem = item.precio * item.cantidad;
+                
+                subtotal += subtotalItem;
+                total += totalItem;
+                
+                const textoCantidad = item.cantidad > 1 ? ` <b style="color: #555;">(x${item.cantidad})</b>` : '';
+
+                contenedorCarrito.innerHTML += `
+                    <div class="item-carrito">
+                        <div class="item-izq">
+                            <button class="btn-eliminar" onclick="eliminarDelCarrito(${item.id})">✖</button>
+                            <span>${item.nombre}${textoCantidad}</span>
+                        </div>
+                        <span>$${totalItem}</span>
+                    </div>
+                `;
+            });
+
+            descuento = subtotal - total; 
+
+            document.getElementById('lbl-subtotal').innerText = subtotal.toFixed(2);
+            document.getElementById('lbl-descuento').innerText = descuento.toFixed(2);
+            document.getElementById('lbl-total').innerText = total.toFixed(2);
+            contenedorCarrito.scrollTop = contenedorCarrito.scrollHeight;
+        }
+		
+		function eliminarDelCarrito(id) {
+            emitirBeep();
+            const index = carrito.findIndex(item => item.id === id);
+            if (index !== -1) {
+                if (carrito[index].cantidad > 1) {
+                    carrito[index].cantidad -= 1;
+                } else {
+                    carrito.splice(index, 1);
+                }
+                actualizarTicket();
+            }
+        }
+		
+        function iniciarProcesoCobro() {
+            if(carrito.length === 0) return;
+
+            if(!clienteActual) {
+                alert('⚠️ ¡Por favor escanea o ingresa el código de la tarjeta del alumno primero!');
+                document.getElementById('input-codigo').focus();
+                return;
+            }
+
+            if(clienteActual.saldo < total) {
+                alert('❌ ¡Fondos insuficientes! El alumno debe quitar algún producto del carrito.');
+                return;
+            }
+
+            abrirModal();
+        }
+
+        function cancelarCompra() {
+            carrito = [];
+            total = 0;
+            subtotal = 0;
+            descuento = 0;
+            actualizarTicket();
+            clienteActual = null;
+            
+            document.getElementById('lbl-tarjeta').innerText = '----';
+            document.getElementById('lbl-saldo').innerText = '0.00';
+            document.getElementById('input-codigo').focus(); 
+        }
+        // --- 5. LÓGICA DE IMPRESIÓN ---
+        function imprimirUltimoTicket() {
+            if (!ultimoTicket) {
+                alert('⚠️ Aún no hay ninguna compra reciente para imprimir.');
+                return;
+            }
+
+            let itemsHTML = '';
+            ultimoTicket.items.forEach(item => {
+                const totalItem = item.precio * item.cantidad;
+                itemsHTML += `
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 14px;">
+                        <span>${item.nombre} ${item.cantidad > 1 ? `(x${item.cantidad})` : ''}</span>
+                        <span>$${totalItem}</span>
+                    </div>
+                `;
+            });
+
+            const ventanaImpresion = window.open('', '_blank', 'width=400,height=600');
+            
+            ventanaImpresion.document.write(`
+                <html>
+                <head>
+                    <title>Ticket de Compra</title>
+                    <style>
+                        body { font-family: 'Courier New', Courier, monospace; padding: 20px; max-width: 350px; margin: 0 auto; color: #000; }
+                        h2 { text-align: center; margin-bottom: 5px; }
+                        p { text-align: center; margin: 5px 0; font-size: 14px; }
+                        hr { border-top: 1px dashed #000; margin: 15px 0; }
+                    </style>
+                </head>
+                <body>
+                    <h2>TIENDITA ESCOLAR</h2>
+                    <p>¡Gracias por tu compra!</p>
+                    <p>${ultimoTicket.fecha}</p>
+                    <hr>
+                    <p style="text-align: left; font-weight: bold;">Tarjeta Cliente: ${ultimoTicket.tarjeta}</p>
+                    <hr>
+                    ${itemsHTML}
+                    <hr>
+                    <p style="text-align: right; margin: 5px 0; font-size: 14px;">Subtotal: $${ultimoTicket.subtotal}</p>
+                    <p style="text-align: right; margin: 5px 0; font-size: 14px;">Descuento: -$${ultimoTicket.descuento}</p>
+                    <h3 style="text-align: right; margin: 5px 0;">TOTAL A PAGAR: $${ultimoTicket.totalCompra}</h3>
+                    <p style="text-align: right; margin: 5px 0;">Saldo restante: $${ultimoTicket.saldoRestante}</p>
+                    <hr>
+                    <p>¡Vuelve pronto!</p>
+                    <script>
+                        window.onload = function() { window.print(); }
+                        window.onafterprint = function() { window.close(); }
+                    <\/script>
+                </body>
+                </html>
+            `);
+            ventanaImpresion.document.close();
+        }
+		
+        // --- 6. FUNCIONES DE LA MODAL DE PAGO ---
+        const modalOverlay = document.getElementById('modal-pago-overlay');
+        const modalTitle = document.getElementById('modal-title');
+        const btnCerrarX = document.getElementById('btn-cerrar-x');
+        const viewSeleccion = document.getElementById('seleccion-metodo-pago');
+        const viewTarjeta = document.getElementById('simulador-tarjeta');
+        const viewStatus = document.getElementById('pago-status');
+        const pinpadDisplay = document.getElementById('pinpad-display');
+
+        function abrirModal() {
+            modalOverlay.style.display = 'flex';
+            resetearModalUI();
+        }
+
+        function cerrarModal() {
+            modalOverlay.style.display = 'none';
+        }
+
+        function resetearModalUI() {
+            modalTitle.innerText = "Cobrar";
+            btnCerrarX.style.display = 'block'; 
+            
+            viewSeleccion.style.display = 'block';
+            viewTarjeta.style.display = 'none';
+            viewStatus.style.display = 'none';
+            
+            entradaCVV = '';
+            actualizarDisplayCVV();
+        }
+
+        function seleccionarMetodoPago(metodo) {
+            if (metodo === 'tarjeta') {
+                viewSeleccion.style.display = 'none';
+                viewTarjeta.style.display = 'block';
+
+                const elementoPista = viewTarjeta.querySelector('p');
+                if (elementoPista && clienteActual) {
+                    elementoPista.innerHTML = `(Pista para tarjeta ${clienteActual.id}: <b>${clienteActual.cvv}</b>)`;
+                }
+            }
+        }
+
+        function tecladoCVVClick(valor) {
+            emitirBeep(); 
+            if (valor === 'back') {
+                if (entradaCVV.length > 0) {
+                    entradaCVV = entradaCVV.slice(0, -1);
+                }
+            } else if (entradaCVV.length < 3) {
+                entradaCVV += valor;
+            }
+            actualizarDisplayCVV();
+        }
+
+        function actualizarDisplayCVV() {
+            pinpadDisplay.value = '*'.repeat(entradaCVV.length);
+        }
+
+        function verificarCVV() {
+            if (entradaCVV.length !== 3) {
+                return;
+            }
+
+            viewTarjeta.style.display = 'none';
+            viewStatus.style.display = 'block';
+            
+            setModalStatusContent('procesando');
+
+            setTimeout(() => {
+                if (entradaCVV === clienteActual.cvv) {
+                    procesarTransaccionExitosa(total, clienteActual.saldo);
+                } else {
+                    setModalStatusContent('error');
+                    entradaCVV = ''; 
+                    actualizarDisplayCVV();
+                }
+            }, 1500);
+        }
+
+        function procesarTransaccionExitosa(montoCobrado, saldoAnterior) {
+            clienteActual.saldo -= montoCobrado;
+            let nuevoSaldo = clienteActual.saldo;
+            
+            ultimoTicket = {
+                tarjeta: clienteActual.id,
+                items: [...carrito],
+                subtotal: subtotal,
+                descuento: descuento,
+                totalCompra: montoCobrado,
+                saldoRestante: nuevoSaldo,
+                fecha: new Date().toLocaleString()
+            };
+
+            cancelarCompra(); 
+
+            btnCerrarX.style.display = 'none'; 
+            setModalStatusContent('exito', montoCobrado, nuevoSaldo);
+        }
+		
+        function setModalStatusContent(status, monto, saldo) {
+            let content = '';
+            if (status === 'procesando') {
+                modalTitle.innerText = "Procesando pago...";
+                content = `
+                    <div class="status-screen-content">
+                        <div class="spinner"></div>
+                        <p class="status-text">Procesando...</p>
+                    </div>
+                `;
+            } else if (status === 'exito') {
+                modalTitle.innerText = "✨ ¡Compra exitosa! ✨";
+                content = `
+                    <div class="status-screen-content success-animation">
+                        <div class="status-icon">✅</div>
+                        <div class="summary-details">
+                            <p style="font-size: 1.2rem; text-align: center; margin-bottom: 20px;">Tu pago ha sido procesado correctamente.</p>
+                            <hr style="border: 0; border-top: 2px dashed #eee; margin: 15px 0;">
+                            <p style="display: flex; justify-content: space-between;"><span>Monto cobrado:</span> <b>$${monto.toFixed(2)}</b></p>
+                            <p style="display: flex; justify-content: space-between;"><span>Nuevo saldo disponible:</span> <b>$${saldo.toFixed(2)}</b></p>
+                            <hr style="border: 0; border-top: 2px dashed #eee; margin: 15px 0;">
+                        </div>
+                        <button class="btn-cerrar-final-modal" onclick="cerrarModal()">Cerrar y volver a la tienda</button>
+                    </div>
+                `;
+            } else if (status === 'error') {
+                modalTitle.innerText = "❌ Fallo en el pago ❌";
+                content = `
+                    <div class="status-screen-content error-animation">
+                        <div class="status-icon">⚠️</div>
+                        <p class="status-text">CVV Incorrecto. Verifica y reintenta.</p>
+                        <button class="btn-reintentar-modal" onclick="reintentarCVV()">Volver a intentar</button>
+                    </div>
+                `;
+            }
+            viewStatus.innerHTML = content;
+        }
+
+        function reintentarCVV() {
+            modalTitle.innerText = "Cobrar";
+            viewStatus.style.display = 'none';
+            viewTarjeta.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
