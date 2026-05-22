@@ -312,13 +312,34 @@
                 padding: 20px;
             }
         }
+		
+		/* Botón Pantalla Completa */
+        .btn-fullscreen {
+            background-color: transparent;
+            border: none;
+            font-size: 1.5rem;
+            padding: 10px 20px;
+            cursor: pointer;
+            color: #a4b0be;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-fullscreen:hover {
+            color: #2f3542;
+            transform: scale(1.1);
+        }
     </style>
 </head>
 <body>
 
     <div id="pantalla-caja">
         <div class="seccion-izquierda">
-            <div class="contenedor-pestanas" id="contenedor-pestanas"></div>
+            <div style="display: flex; justify-content: space-between; background-color: #fff; border-bottom: 1px solid #f1f2f6; box-shadow: 0 4px 15px rgba(0,0,0,0.03); z-index: 10;">
+                <div class="contenedor-pestanas" id="contenedor-pestanas" style="box-shadow: none;"></div>
+                <button class="btn-fullscreen" onclick="toggleFullScreen()" title="Pantalla Completa">🖵</button>
+            </div>
             <div class="catalogo" id="contenedor-productos"></div>
         </div>
 
@@ -891,6 +912,21 @@
             modalTitle.innerText = "Cobrar";
             viewStatus.style.display = 'none';
             viewTarjeta.style.display = 'block';
+        }
+		
+	// --- 7. PANTALLA COMPLETA ---
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                // Entrar a pantalla completa
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log(`Error al intentar activar pantalla completa: ${err.message}`);
+                });
+            } else {
+                // Salir de pantalla completa
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
         }
     </script>
 </body>
